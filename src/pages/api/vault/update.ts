@@ -3,13 +3,23 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { verifyToken } from "@/lib/auth";
 
+interface TokenPayload {
+  userId: string;
+}
+function isTokenPayload(payload: unknown): payload is TokenPayload {
+  return typeof payload === "object" &&
+         payload !== null &&
+         "userId" in payload &&
+         typeof (payload as any).userId === "string";
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "PUT") return res.status(405).end();
 
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
   const payload = token ? verifyToken(token) : null;
-  if (!payload) return res.status(401).json({ error: "Unauthorized" });
+  if (!isTokenPayload(payload)) return res.status(401).json({ error: "Unauthorized" });
 
   const { id, encrypted } = req.body;
   if (!id || !encrypted) return res.status(400).json({ error: "Missing fields" });
@@ -19,10 +29,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const vault = db.collection("vault");
 
   const result = await vault.updateOne(
-    { _id: new ObjectId(id), owner: (payload as any).userId },
+    { _id: new ObjectId(id), owner: payload.userId },
     { $set: { encrypted, updatedAt: new Date() } }
   );
-
   if (result.matchedCount === 0) return res.status(404).json({ error: "Not found" });
+
   return res.json({ ok: true });
 }

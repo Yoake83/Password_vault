@@ -17,9 +17,14 @@ export default function Home() {
       localStorage.setItem("token", res.data.token);
       alert("Signup successful!");
       router.push("/vault");
-    } catch (err: any) {
-      alert(err.response?.data?.error || "Signup failed");
-    }
+    } catch (err) {
+  if (axios.isAxiosError(err)) {
+    alert(err.response?.data?.error || "Failed");
+  } else {
+    alert("Unexpected error");
+  }
+}
+
   };
 
   // Login function
