@@ -1,0 +1,8 @@
+How to Use:
+Sign up / Login on the home page.
+Go to /vault.
+Enter a master password and click Derive Key (used to encrypt/decrypt locally).
+Use password generator to create a secure password; click generate to populate the create form.
+Save item → server stores only encrypted blob.
+Click Reveal on a saved item to decrypt locally (requires derived key).
+Click Copy to copy password; clipboard clears automatically after ~10s.
